@@ -34,3 +34,34 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## DevNexus foundation
+
+### What is DevNexus
+
+DevNexus is a dark-mode-first developer intelligence app foundation for presenting information across news, AI models, developer builds, and hackathons. This foundation reads static published JSON and has no backend.
+
+### Zero-cost constraints
+
+DevNexus is designed to run without paid services, a credit card, authentication, accounts, or a database. The app does not make live-source claims, and this repository makes no deployment claims.
+
+### Local development
+
+Install dependencies and run the app or project checks with:
+
+```bash
+npm install
+npm run dev
+npm run typecheck
+npm run lint
+npm run test
+npm run build
+```
+
+### Data layer
+
+The data layer consists of static JSON files under `public/data/`. Dataset files use the versioned envelope format with `schemaVersion`, `dataOrigin`, `generatedAtIso`, and `items`. Development fixtures are marked with `dataOrigin: "seed"` and visibly labelled in the interface; seed content is not verified live data.
+
+### Current status
+
+This is the Phase 1 foundation. Ingestion has not been implemented, all displayed data is seed data, and no live data or deployment is claimed.
