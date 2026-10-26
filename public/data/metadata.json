@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "dataOrigin": "seed",
+  "lastUpdatedIso": "2026-10-25T00:00:00Z",
+  "lastAttemptIso": null,
+  "counts": {
+    "news": 10,
+    "models": 10,
+    "builds": 10,
+    "hackathons": 10
+  },
+  "sources": {}
+}
