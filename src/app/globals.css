@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --background: #090b10;
+  --surface-1: #0f131b;
+  --surface-2: #141a24;
+  --surface-3: #1a2230;
+  --border-subtle: #232c3a;
+  --border-strong: #344155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #a3adbd;
+  --text-muted: #758195;
+  --accent-primary: #8b7cff;
+  --accent-hover: #a296ff;
+  --accent-subtle: #211e3b;
+  --success: #36c995;
+  --warning: #f3b65b;
+  --danger: #f07886;
+  --info: #6eb8ff;
+
+  --foreground: var(--text-primary);
+  --card: var(--surface-1);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-2);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent-primary);
+  --primary-foreground: var(--text-primary);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--accent-subtle);
+  --accent-foreground: var(--accent-primary);
+  --destructive: var(--danger);
+  --border: var(--border-subtle);
+  --input: var(--border-strong);
+  --ring: var(--accent-primary);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
