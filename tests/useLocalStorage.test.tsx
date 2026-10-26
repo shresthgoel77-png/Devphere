@@ -162,6 +162,25 @@ describe("useLocalStorage", () => {
     expect(result.current[0]).toBe("from another tab");
   });
 
+  it("resets to the initial value when another tab clears local storage", async () => {
+    const { result } = renderHook(() => useLocalStorage(key, "initial"));
+    await waitFor(() => expect(result.current[2].isHydrated).toBe(true));
+    act(() => result.current[1]("stored"));
+
+    act(() => {
+      window.localStorage.clear();
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: null,
+          newValue: null,
+          storageArea: window.localStorage,
+        }),
+      );
+    });
+
+    expect(result.current[0]).toBe("initial");
+  });
+
   it("removes the storage listener on unmount", async () => {
     const removeEventListener = vi.spyOn(window, "removeEventListener");
     const { unmount } = renderHook(() => useLocalStorage(key, "initial"));

@@ -76,6 +76,7 @@ describe("parseDataset", () => {
       { ...original, upvotes: Number.NaN },
       { ...original, url: "javascript:alert(1)" },
       { ...original, publishedAtIso: "not-a-date" },
+      { ...original, publishedAtIso: "2026-02-30T12:00:00Z" },
       { ...original, tags: ["valid", 42] },
       { ...original, id: original.id },
     ];
@@ -104,9 +105,12 @@ describe("parseDataset", () => {
       "publishedAtIso must be a valid ISO date-time string.",
     );
     expect(result.rejected[6]?.reasons).toContain(
-      "tags must be an array of strings.",
+      "publishedAtIso must be a valid ISO date-time string.",
     );
     expect(result.rejected[7]?.reasons).toContain(
+      "tags must be an array of strings.",
+    );
+    expect(result.rejected[8]?.reasons).toContain(
       "duplicate id; first occurrence was kept.",
     );
   });

@@ -126,6 +126,11 @@ export function useLocalStorage<T>(
     };
 
     const handleStorage = (event: StorageEvent) => {
+      if (event.key === null) {
+        readValue(null);
+        return;
+      }
+
       if (event.key !== storageKey) {
         return;
       }
