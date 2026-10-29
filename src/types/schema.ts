@@ -26,13 +26,13 @@ export const NEWS_SOURCES = [
 export interface NewsItem {
   id: string;
   title: string;
-  summary: string;
+  summary: string | null;
   url: string;
   source: "HackerNews" | "Reddit" | "Dev.to" | "HuggingFace" | "YouTube";
   communityOrAuthor: string;
   publishedAtIso: string;
-  upvotes: number;
-  commentsCount: number;
+  upvotes: number | null;
+  commentsCount: number | null;
   tags: string[];
   thumbnailUrl?: string;
 }
@@ -171,6 +171,13 @@ export interface SourceStatusEntry {
   errorSummary: string | null;
 }
 
+export interface BenchmarkProvenance {
+  source: string;
+  sourceUrl: string;
+  snapshotIso: string | null;
+  fetchedIso: string;
+}
+
 export interface MetadataSummary {
   schemaVersion: number;
   dataOrigin: DataOrigin;
@@ -183,6 +190,7 @@ export interface MetadataSummary {
     hackathons: number;
   };
   sources: Partial<Record<SourceId, SourceStatusEntry>>;
+  benchmarks?: BenchmarkProvenance | null;
 }
 
 export type DatasetItemMap = {

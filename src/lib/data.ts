@@ -12,6 +12,7 @@ import {
   SOURCE_IDS,
   SOURCE_STATUSES,
   type AIModelItem,
+  type BenchmarkProvenance,
   type DataOrigin,
   type DatasetItemMap,
   type DatasetName,
@@ -190,6 +191,19 @@ function requiredNullableNumber(
   return null;
 }
 
+function nullableSummary(
+  record: Record<string, unknown>,
+  reasons: string[],
+): string | null {
+  const value = record.summary;
+  if (value === null || isNonEmptyString(value)) {
+    return value;
+  }
+
+  reasons.push("summary must be null or a non-empty string.");
+  return null;
+}
+
 function requiredStringArray(
   record: Record<string, unknown>,
   field: string,
@@ -341,13 +355,13 @@ function validateNewsItem(raw: unknown): RecordValidation<NewsItem> {
   const reasons: string[] = [];
   const id = idFromRecord(raw);
   const title = requiredString(raw, "title", reasons);
-  const summary = requiredString(raw, "summary", reasons);
+  const summary = nullableSummary(raw, reasons);
   const url = requiredUrl(raw, "url", reasons);
   const source = requiredEnum(raw, "source", NEWS_SOURCES, reasons);
   const communityOrAuthor = requiredString(raw, "communityOrAuthor", reasons);
   const publishedAtIso = requiredDateTime(raw, "publishedAtIso", reasons);
-  const upvotes = requiredNumber(raw, "upvotes", reasons);
-  const commentsCount = requiredNumber(raw, "commentsCount", reasons);
+  const upvotes = requiredNullableNumber(raw, "upvotes", reasons);
+  const commentsCount = requiredNullableNumber(raw, "commentsCount", reasons);
   const tags = requiredStringArray(raw, "tags", reasons);
 
   if (id === null) {
@@ -609,6 +623,17 @@ function isNullableFiniteInteger(value: unknown): value is number | null {
   return value === null || (isFiniteNumber(value) && Number.isInteger(value));
 }
 
+function isBenchmarkProvenance(value: unknown): value is BenchmarkProvenance {
+  return (
+    isObject(value) &&
+    isNonEmptyString(value.source) &&
+    typeof value.sourceUrl === "string" &&
+    isSafeExternalUrl(value.sourceUrl) &&
+    isNullableIsoDateTime(value.snapshotIso) &&
+    isIsoDateTime(value.fetchedIso)
+  );
+}
+
 function parseMetadataInternal(raw: unknown): MetadataResult {
   if (
     !isObject(raw) ||
@@ -620,6 +645,22 @@ function parseMetadataInternal(raw: unknown): MetadataResult {
     !isObject(raw.sources)
   ) {
     return invalidMetadataResult("Metadata is invalid.");
+  }
+
+  const rawBenchmarks = raw.benchmarks;
+  let benchmarks: BenchmarkProvenance | null | undefined;
+  if (rawBenchmarks === null) {
+    benchmarks = null;
+  } else if (rawBenchmarks !== undefined) {
+    if (!isBenchmarkProvenance(rawBenchmarks)) {
+      return invalidMetadataResult("Metadata benchmark provenance is invalid.");
+    }
+    benchmarks = {
+      source: rawBenchmarks.source,
+      sourceUrl: rawBenchmarks.sourceUrl,
+      snapshotIso: rawBenchmarks.snapshotIso,
+      fetchedIso: rawBenchmarks.fetchedIso,
+    };
   }
 
   const counts: Record<DatasetName, number> = {
@@ -669,6 +710,7 @@ function parseMetadataInternal(raw: unknown): MetadataResult {
     lastAttemptIso: raw.lastAttemptIso,
     counts,
     sources,
+    ...(benchmarks === undefined ? {} : { benchmarks }),
   };
   return { status: "ok", metadata, error: null };
 }

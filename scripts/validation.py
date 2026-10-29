@@ -167,6 +167,8 @@ def _field_valid(spec: FieldSpec, value: object) -> bool:
     match spec.kind:
         case "string":
             return _nonempty(value)
+        case "nullable_summary":
+            return value is None or _nonempty(value)
         case "datetime":
             return parse_iso_datetime(value) is not None
         case "number":
@@ -187,6 +189,7 @@ def _field_valid(spec: FieldSpec, value: object) -> bool:
 def _reason(spec: FieldSpec) -> str:
     descriptions = {
         "string": "a non-empty string", "datetime": "a valid ISO date-time string",
+        "nullable_summary": "null or a non-empty string",
         "number": "a finite number", "nullable_number": "null or a finite number",
         "boolean": "a boolean", "strings": "an array of strings", "url": "a safe HTTPS URL",
     }
@@ -284,6 +287,14 @@ def validate_metadata(obj: object) -> tuple[bool, str | None]:
             or not isinstance(obj.get("counts"), dict)
             or not isinstance(obj.get("sources"), dict)):
         return False, "Metadata is invalid."
+    benchmarks = obj.get("benchmarks", _MISSING)
+    if benchmarks is not _MISSING and benchmarks is not None:
+        if (not isinstance(benchmarks, dict)
+                or not _nonempty(benchmarks.get("source"))
+                or not is_safe_external_url(benchmarks.get("sourceUrl"))
+                or not _nullable_date(benchmarks.get("snapshotIso", _MISSING))
+                or parse_iso_datetime(benchmarks.get("fetchedIso", _MISSING)) is None):
+            return False, "Metadata benchmark provenance is invalid."
     if any(not _integer(obj["counts"].get(name)) or obj["counts"][name] < 0 for name in DATASET_NAMES):
         return False, "Metadata counts are invalid."
     for source_id, entry in obj["sources"].items():

@@ -48,7 +48,8 @@ def test_field_tables_match_ts_interfaces(dataset, interface):
     fields = re.findall(r"^\s*(\w+)(\?)?:\s*(.+);$", match[1], re.M)
     specs = models.DATASET_FIELDS[dataset]
     assert [s.name for s in specs] == [f[0] for f in fields]
-    kinds = {"string": "string", "url": "string", "datetime": "string", "number": "number",
+    kinds = {"string": "string", "nullable_summary": "string | null",
+             "url": "string", "datetime": "string", "number": "number",
              "nullable_number": "number | null", "boolean": "boolean", "strings": "string[]"}
     for spec, (_, optional, ts_type) in zip(specs, fields, strict=True):
         assert spec.required == (not optional)

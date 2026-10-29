@@ -11,15 +11,15 @@
       "source": "HackerNews",
       "communityOrAuthor": "Seed Fixture Desk",
       "publishedAtIso": "2026-10-24T09:00:00Z",
-      "upvotes": 0,
-      "commentsCount": 0,
+      "upvotes": null,
+      "commentsCount": null,
       "tags": ["LLMs", "Open Source"],
       "thumbnailUrl": "https://example.com/seed/news/images/001"
     },
     {
       "id": "seed-news-002",
       "title": "[SEED] Frontend patterns for a calm loading state",
-      "summary": "A fictional UI note about making loading states readable and predictable.",
+      "summary": null,
       "url": "https://example.com/seed/news/002",
       "source": "Reddit",
       "communityOrAuthor": "Fixture Community",

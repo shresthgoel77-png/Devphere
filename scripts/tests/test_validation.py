@@ -46,13 +46,73 @@ def test_metadata_seed(seeds):
     assert validate_metadata(seeds["metadata"]) == (True, None)
 
 
+def test_nullable_news_metrics_and_summary(seeds):
+    record = seeds["news"]["items"][0]
+    unknown = {**record, "upvotes": None, "commentsCount": None, "summary": None}
+    before = deepcopy(unknown)
+    report = validate_record("news", unknown)
+    assert report.accepted[0] == unknown
+    report.accepted[0]["tags"].append("local-only")
+    assert unknown == before
+
+    verified_zero = {**record, "upvotes": 0, "commentsCount": 0}
+    accepted_zero = validate_record("news", verified_zero).accepted[0]
+    assert accepted_zero["upvotes"] == 0
+    assert accepted_zero["commentsCount"] == 0
+
+    for field in ("upvotes", "commentsCount"):
+        missing = {**record}
+        del missing[field]
+        assert not validate_record("news", missing).accepted
+        assert not validate_record("news", {**record, field: float("nan")}).accepted
+
+    for summary in ("", "   "):
+        report = validate_record("news", {**record, "summary": summary})
+        assert not report.accepted
+        assert report.rejected[0].reasons == [
+            "summary must be null or a non-empty string."
+        ]
+
+
+@pytest.mark.parametrize("benchmarks", [
+    {"source": "Fictional benchmark source", "sourceUrl": "https://example.invalid/benchmark",
+     "snapshotIso": "2026-01-01T00:00:00Z", "fetchedIso": "2026-01-02T00:00:00Z"},
+    {"source": "source", "sourceUrl": "javascript:alert(1)",
+     "snapshotIso": None, "fetchedIso": "2026-01-02T00:00:00Z"},
+    {"source": "source", "sourceUrl": "https://example.invalid/benchmark",
+     "snapshotIso": "not-a-date", "fetchedIso": "2026-01-02T00:00:00Z"},
+    {"source": "source", "sourceUrl": "https://example.invalid/benchmark",
+     "snapshotIso": None, "fetchedIso": "not-a-date"},
+    {"source": "   ", "sourceUrl": "https://example.invalid/benchmark",
+     "snapshotIso": None, "fetchedIso": "2026-01-02T00:00:00Z"},
+    [],
+])
+def test_benchmark_provenance(seeds, benchmarks):
+    metadata = seeds["metadata"]
+    before = deepcopy(metadata)
+    assert validate_metadata(metadata) == (True, None)
+    assert metadata == before
+    candidate = {**metadata, "benchmarks": benchmarks}
+    is_valid = (
+        isinstance(benchmarks, dict)
+        and benchmarks.get("source") == "Fictional benchmark source"
+    )
+    assert validate_metadata(candidate)[0] is is_valid
+    if not is_valid:
+        assert validate_metadata(candidate)[1] == "Metadata benchmark provenance is invalid."
+
+
+def test_null_benchmark_provenance_is_valid(seeds):
+    assert validate_metadata({**seeds["metadata"], "benchmarks": None}) == (True, None)
+
+
 @pytest.mark.parametrize("field,value,reason", [
     ("title", None, "title must be a non-empty string."),
     ("source", "NotARealSource", "source must be one of: HackerNews, Reddit, Dev.to, HuggingFace, YouTube."),
-    ("upvotes", float("nan"), "upvotes must be a finite number."),
-    ("upvotes", float("inf"), "upvotes must be a finite number."),
-    ("upvotes", -float("inf"), "upvotes must be a finite number."),
-    ("upvotes", True, "upvotes must be a finite number."),
+    ("upvotes", float("nan"), "upvotes must be null or a finite number."),
+    ("upvotes", float("inf"), "upvotes must be null or a finite number."),
+    ("upvotes", -float("inf"), "upvotes must be null or a finite number."),
+    ("upvotes", True, "upvotes must be null or a finite number."),
     ("url", "javascript:alert(1)", "url must be a safe HTTPS URL."),
     ("publishedAtIso", "not-a-date", "publishedAtIso must be a valid ISO date-time string."),
     ("publishedAtIso", "2026-02-30T12:00:00Z", "publishedAtIso must be a valid ISO date-time string."),
@@ -238,7 +298,22 @@ def test_actual_typescript_dataset_and_metadata_parsers_offline(seeds):
         cases.append(["news", {**news_envelope, "items": [
             {**news_item, "publishedAtIso": timestamp},
         ]}])
-    metadata_cases = [seeds["metadata"], None, {}, {**seeds["metadata"], "schemaVersion": 99}]
+    provenance = {
+        "source": "Fictional benchmark source",
+        "sourceUrl": "https://example.invalid/benchmark",
+        "snapshotIso": None,
+        "fetchedIso": "2026-01-02T00:00:00Z",
+    }
+    metadata_cases = [
+        seeds["metadata"], None, {}, {**seeds["metadata"], "schemaVersion": 99},
+        {**seeds["metadata"], "benchmarks": None},
+        {**seeds["metadata"], "benchmarks": provenance},
+        {**seeds["metadata"], "benchmarks": {**provenance, "sourceUrl": "javascript:alert(1)"}},
+        {**seeds["metadata"], "benchmarks": {**provenance, "snapshotIso": "not-a-date"}},
+        {**seeds["metadata"], "benchmarks": {**provenance, "fetchedIso": "not-a-date"}},
+        {**seeds["metadata"], "benchmarks": {**provenance, "source": ""}},
+        {**seeds["metadata"], "benchmarks": []},
+    ]
     for status in SOURCE_STATUSES:
         metadata_cases.append({**seeds["metadata"], "sources": {"hackernews": {
             "status": status, "lastSuccessIso": None, "lastAttemptIso": None,

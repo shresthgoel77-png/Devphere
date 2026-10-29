@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   BUILD_PLATFORMS,
+  type BenchmarkProvenance,
   DATASET_NAMES,
   DATA_ORIGINS,
   HACKATHON_MODES,
@@ -23,13 +24,13 @@ import {
 const news: NewsItem = {
   id: "fake-news-1",
   title: "Fake news item",
-  summary: "A clearly fictional summary for schema testing.",
+  summary: null,
   url: "https://example.invalid/news",
   source: "HackerNews",
   communityOrAuthor: "Fake author",
   publishedAtIso: "2026-01-01T00:00:00.000Z",
-  upvotes: 0,
-  commentsCount: 0,
+  upvotes: null,
+  commentsCount: null,
   tags: ["fictional"],
 };
 
@@ -112,6 +113,12 @@ const metadata: MetadataSummary = {
     hackathons: 1,
   },
   sources: { hackernews: sourceStatus },
+  benchmarks: {
+    source: "Fictional benchmark source",
+    sourceUrl: "https://example.invalid/benchmark",
+    snapshotIso: null,
+    fetchedIso: "2026-01-01T00:00:00.000Z",
+  } satisfies BenchmarkProvenance,
 };
 
 const datasetItems: DatasetItemMap = {

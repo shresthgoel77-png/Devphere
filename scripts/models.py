@@ -20,7 +20,7 @@ SOURCE_IDS: Final = (
 )
 SOURCE_STATUSES: Final = ("success", "partial", "failed", "rate_limited", "no_data", "stale")
 
-FieldKind = Literal["string", "datetime", "number", "nullable_number", "boolean", "strings", "enum", "url"]
+FieldKind = Literal["string", "nullable_summary", "datetime", "number", "nullable_number", "boolean", "strings", "enum", "url"]
 
 
 @dataclass(frozen=True)
@@ -36,10 +36,10 @@ class FieldSpec:
 DATASET_FIELDS: Final[Mapping[str, tuple[FieldSpec, ...]]] = {
     "news": (
         FieldSpec("id", "string"), FieldSpec("title", "string"),
-        FieldSpec("summary", "string"), FieldSpec("url", "url"),
+        FieldSpec("summary", "nullable_summary"), FieldSpec("url", "url"),
         FieldSpec("source", "enum", choices=NEWS_SOURCES),
         FieldSpec("communityOrAuthor", "string"), FieldSpec("publishedAtIso", "datetime"),
-        FieldSpec("upvotes", "number"), FieldSpec("commentsCount", "number"),
+        FieldSpec("upvotes", "nullable_number"), FieldSpec("commentsCount", "nullable_number"),
         FieldSpec("tags", "strings"), FieldSpec("thumbnailUrl", "url", False),
     ),
     "models": (

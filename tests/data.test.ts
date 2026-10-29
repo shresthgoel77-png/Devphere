@@ -97,7 +97,9 @@ describe("parseDataset", () => {
     expect(result.rejected[2]?.reasons).toContain(
       "source must be one of: HackerNews, Reddit, Dev.to, HuggingFace, YouTube.",
     );
-    expect(result.rejected[3]?.reasons).toContain("upvotes must be a finite number.");
+    expect(result.rejected[3]?.reasons).toContain(
+      "upvotes must be null or a finite number.",
+    );
     expect(result.rejected[4]?.reasons).toContain(
       "url must be a safe HTTPS URL.",
     );
@@ -113,6 +115,58 @@ describe("parseDataset", () => {
     expect(result.rejected[8]?.reasons).toContain(
       "duplicate id; first occurrence was kept.",
     );
+  });
+
+  it("accepts unknown news metrics and summaries without inventing values", () => {
+    const original = newsSeed.items[2]!;
+    const result = parseDataset("news", {
+      ...newsSeed,
+      items: [
+        { ...original, upvotes: null, commentsCount: null, summary: null },
+        { ...original, id: "verified-zeros", upvotes: 0, commentsCount: 0 },
+      ],
+    });
+
+    expect(result.status).toBe("ok");
+    expect(result.rejected).toEqual([]);
+    expect(result.items[0]).toMatchObject({
+      upvotes: null,
+      commentsCount: null,
+      summary: null,
+    });
+    expect(result.items[1]).toMatchObject({ upvotes: 0, commentsCount: 0 });
+  });
+
+  it("rejects missing or invalid nullable news values with specific reasons", () => {
+    const original = newsSeed.items[2]!;
+    const invalidItems = [
+      { ...original, upvotes: undefined },
+      { ...original, commentsCount: undefined },
+      { ...original, upvotes: Number.NaN },
+      { ...original, commentsCount: Number.NaN },
+      { ...original, summary: "" },
+      { ...original, summary: "   " },
+    ];
+    const result = parseDataset("news", { ...newsSeed, items: invalidItems });
+
+    expect(result.items).toEqual([]);
+    expect(result.rejected[0]?.reasons).toContain(
+      "upvotes must be null or a finite number.",
+    );
+    expect(result.rejected[1]?.reasons).toContain(
+      "commentsCount must be null or a finite number.",
+    );
+    expect(result.rejected[2]?.reasons).toContain(
+      "upvotes must be null or a finite number.",
+    );
+    expect(result.rejected[3]?.reasons).toContain(
+      "commentsCount must be null or a finite number.",
+    );
+    for (const rejection of result.rejected.slice(4)) {
+      expect(rejection.reasons).toContain(
+        "summary must be null or a non-empty string.",
+      );
+    }
   });
 
   it("preserves null model values and verified zero prices", () => {
@@ -151,6 +205,32 @@ describe("parseMetadata", () => {
     expect(parseMetadata({ ...metadataSeed, schemaVersion: 99 }).status).toBe(
       "invalid",
     );
+  });
+
+  it("accepts optional benchmark provenance when absent, null, or populated", () => {
+    const provenance = {
+      source: "Fictional benchmark source",
+      sourceUrl: "https://example.invalid/benchmark",
+      snapshotIso: "2026-01-01T00:00:00Z",
+      fetchedIso: "2026-01-02T00:00:00Z",
+    };
+
+    expect(parseMetadata(metadataSeed).status).toBe("ok");
+    expect(parseMetadata({ ...metadataSeed, benchmarks: null }).status).toBe("ok");
+    expect(
+      parseMetadata({ ...metadataSeed, benchmarks: provenance }).metadata
+        ?.benchmarks,
+    ).toEqual(provenance);
+  });
+
+  it.each([
+    { source: "source", sourceUrl: "javascript:alert(1)", snapshotIso: null, fetchedIso: "2026-01-02T00:00:00Z" },
+    { source: "source", sourceUrl: "https://example.invalid/benchmark", snapshotIso: "not-a-date", fetchedIso: "2026-01-02T00:00:00Z" },
+    { source: "source", sourceUrl: "https://example.invalid/benchmark", snapshotIso: null, fetchedIso: "not-a-date" },
+    { source: "   ", sourceUrl: "https://example.invalid/benchmark", snapshotIso: null, fetchedIso: "2026-01-02T00:00:00Z" },
+    [],
+  ])("rejects invalid benchmark provenance: %j", (benchmarks) => {
+    expect(parseMetadata({ ...metadataSeed, benchmarks }).status).toBe("invalid");
   });
 });
 
