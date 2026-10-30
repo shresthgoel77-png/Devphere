@@ -1,0 +1,45 @@
+{
+  "feed": {
+    "title": "Fireship",
+    "author": "Fireship",
+    "id": "yt:channel:sBjURrPoezykLs9EqgamOA",
+    "link": "https://www.youtube.com/channel/UCsBjURrPoezykLs9EqgamOA",
+    "yt_channelid": "sBjURrPoezykLs9EqgamOA"
+  },
+  "entries": [
+    {
+      "id": "yt:video:nEaJMdM1djM",
+      "yt_videoid": "nEaJMdM1djM",
+      "yt_channelid": "UCsBjURrPoezykLs9EqgamOA",
+      "title": "Did the AI bubble just pop?",
+      "author": "Fireship",
+      "published": "2026-10-28T13:31:29+00:00",
+      "summary": "Try Hyperagent for free, or sign in with ChatGPT to get more usage from your existing plan: https://www.hyperagent.com/login?utm_source=youtube&amp;utm_medium=influencer&amp;utm_campaign=FIRESHIP\n\nAre we cooked chat?\n\nWant more Fireship?\n\n🗞",
+      "link": "https://www.youtube.com/watch?v=nEaJMdM1djM",
+      "media_thumbnail": [
+        {
+          "url": "https://i3.ytimg.com/vi/nEaJMdM1djM/hqdefault.jpg",
+          "width": "480",
+          "height": "360"
+        }
+      ]
+    },
+    {
+      "id": "yt:video:G_em1hHPnXY",
+      "yt_videoid": "G_em1hHPnXY",
+      "yt_channelid": "UCsBjURrPoezykLs9EqgamOA",
+      "title": "China just dropped a new frontier model... and nobody can explain how",
+      "author": "Fireship",
+      "published": "2026-10-26T18:55:29+00:00",
+      "summary": "Get 20% off Mobbin Pro to help your agent design UIs that actually convert - https://mobbin.com/fireship\n\nKimi K3.1 just dropped as a free 3-trillion-parameter open-weight model that comes within one point of Opus on Terminal Bench. But is ",
+      "link": "https://www.youtube.com/watch?v=G_em1hHPnXY",
+      "media_thumbnail": [
+        {
+          "url": "https://i4.ytimg.com/vi/G_em1hHPnXY/hqdefault.jpg",
+          "width": "480",
+          "height": "360"
+        }
+      ]
+    }
+  ]
+}

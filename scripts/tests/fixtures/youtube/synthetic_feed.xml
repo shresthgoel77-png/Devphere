@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:yt="http://www.youtube.com/xml/schemas/2015"
+      xmlns:media="http://search.yahoo.com/mrss/">
+  <id>yt:channel:UCsBjURrPoezykLs9EqgamOA</id>
+  <title>Fireship</title>
+  <author><name>Fireship</name></author>
+  <entry>
+    <id>yt:video:AbC123_XyZ0</id>
+    <yt:videoId>AbC123_XyZ0</yt:videoId>
+    <yt:channelId>UCsBjURrPoezykLs9EqgamOA</yt:channelId>
+    <title>Synthetic fixture video about AI</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=AbC123_XyZ0" />
+    <author><name>Fireship</name></author>
+    <published>2026-01-02T03:04:05+00:00</published>
+    <media:group>
+      <media:description type="plain">A short synthetic description.</media:description>
+      <media:thumbnail url="https://i.ytimg.com/vi/AbC123_XyZ0/hqdefault.jpg" />
+    </media:group>
+  </entry>
+</feed>

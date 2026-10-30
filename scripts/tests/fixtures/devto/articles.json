@@ -1,0 +1,40 @@
+[
+  {
+    "id": 810001,
+    "title": "Synthetic Python article",
+    "description": "<p>A sample <strong>Python</strong> article.</p>",
+    "url": "https://dev.to/example/synthetic-python-article",
+    "canonical_url": "https://dev.to/example/synthetic-python-article",
+    "published_timestamp": "2026-01-02T03:04:05Z",
+    "published_at": "2026-01-02T03:04:05Z",
+    "positive_reactions_count": 0,
+    "comments_count": 2,
+    "tag_list": ["python", "open-source"],
+    "user": {
+      "name": "Example Author",
+      "username": "exampleauthor"
+    },
+    "cover_image": "https://dev.to/assets/example-cover.png",
+    "social_image": "https://dev.to/assets/example-social.png",
+    "reading_time_minutes": 4
+  },
+  {
+    "id": 810002,
+    "title": "Synthetic DevOps article",
+    "description": null,
+    "url": "https://dev.to/example/synthetic-devops-article",
+    "canonical_url": null,
+    "published_timestamp": "2026-01-01T03:04:05Z",
+    "published_at": "2026-01-01T03:04:05Z",
+    "positive_reactions_count": null,
+    "comments_count": null,
+    "tag_list": "devops, python",
+    "user": {
+      "name": null,
+      "username": "anotherauthor"
+    },
+    "cover_image": null,
+    "social_image": "http://dev.to/assets/insecure-social.png",
+    "reading_time_minutes": 3
+  }
+]

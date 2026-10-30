@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:media="http://search.yahoo.com/mrss/">
+  <id>/r/LocalLLaMA/hot/.rss</id>
+  <title>LocalLLaMA</title>
+  <entry>
+    <id>t3_rss001</id>
+    <title>RSS fallback sample</title>
+    <link href="https://www.reddit.com/r/LocalLLaMA/comments/rss001/rss_sample/" />
+    <published>2026-01-02T03:04:05+00:00</published>
+    <content type="html">&lt;p&gt;RSS &amp;lt;contents&amp;gt; are cleaned.&lt;/p&gt;</content>
+    <media:thumbnail url="https://preview.redd.it/rss-thumb.jpg" />
+  </entry>
+</feed>

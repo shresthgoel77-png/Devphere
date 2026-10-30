@@ -1,0 +1,73 @@
+{
+  "kind": "Listing",
+  "data": {
+    "children": [
+      {
+        "kind": "t3",
+        "data": {
+          "id": "post001",
+          "subreddit": "LocalLLaMA",
+          "title": "A <b>RAG</b> post",
+          "permalink": "/r/LocalLLaMA/comments/post001/post_title/",
+          "selftext": "<p>Readable <em>summary</em>.</p>",
+          "created_utc": 1767225600,
+          "score": 0,
+          "num_comments": 0,
+          "thumbnail": "https://preview.redd.it/thumb.jpg",
+          "stickied": false,
+          "over_18": false
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "post002",
+          "subreddit": "LocalLLaMA",
+          "title": "A sticky post",
+          "permalink": "/r/LocalLLaMA/comments/post002/sticky/",
+          "selftext": "Ignored sticky",
+          "created_utc": 1767225601,
+          "score": 4,
+          "num_comments": 1,
+          "thumbnail": "self",
+          "stickied": true,
+          "over_18": false
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "post003",
+          "subreddit": "LocalLLaMA",
+          "title": "An NSFW post",
+          "permalink": "/r/LocalLLaMA/comments/post003/nsfw/",
+          "selftext": "Ignored NSFW",
+          "created_utc": 1767225602,
+          "score": 2,
+          "num_comments": 1,
+          "thumbnail": "nsfw",
+          "stickied": false,
+          "over_18": true
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "post004",
+          "subreddit": "LocalLLaMA",
+          "title": "A second ordinary post",
+          "permalink": "/r/LocalLLaMA/comments/post004/second/",
+          "selftext": "",
+          "created_utc": 1767225603,
+          "score": null,
+          "num_comments": null,
+          "thumbnail": "default",
+          "stickied": false,
+          "over_18": false
+        }
+      }
+    ],
+    "after": null,
+    "before": null
+  }
+}

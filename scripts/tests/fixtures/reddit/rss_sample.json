@@ -1,0 +1,60 @@
+{
+  "feed": {
+    "title": "LocalLlama",
+    "id": "/r/LocalLLaMA/hot/.rss",
+    "link": "https://www.reddit.com/r/LocalLLaMA/hot/"
+  },
+  "entries": [
+    {
+      "id": "t3_1xhouci",
+      "title": "AMA Announcement: MOSS, the Team Behind MOSS-Image, MOSS-TTS, and More (Friday, Oct 30, 8–11 AM PT)",
+      "author": "synthetic-user-1",
+      "published": "2026-10-28T13:59:15+00:00",
+      "summary": "<table> <tr><td> <a href=\"https://www.reddit.com/r/LocalLLaMA/comments/1xhouci/ama_announcement_moss_the_team_behind_mossimage/\"> <img alt=\"AMA Announcement: MOSS, the Team Behind MOSS-Image, MOSS-TTS, and More (Friday, Oct 30, 8–11 AM PT)\"",
+      "link": "https://www.reddit.com/r/LocalLLaMA/comments/1xhouci/ama_announcement_moss_the_team_behind_mossimage/",
+      "media_thumbnail": [
+        {
+          "url": "https://preview.redd.it/rfj5mif0s7yh1.png?width=640&crop=smart&auto=webp"
+        }
+      ],
+      "content": [
+        {
+          "type": "text/html",
+          "language": null,
+          "base": "",
+          "value": "<table> <tr><td> <a href=\"https://www.reddit.com/r/LocalLLaMA/comments/1xhouci/ama_announcement_moss_the_team_behind_mossimage/\"> <img alt=\"AMA Announcement: MOSS, the Team Behind MOSS-Image, MOSS-TTS, and More (Friday, Oct 30, 8–11 AM PT)\""
+        }
+      ],
+      "tags": [
+        {
+          "term": "LocalLLaMA",
+          "scheme": null,
+          "label": "r/LocalLLaMA"
+        }
+      ]
+    },
+    {
+      "id": "t3_1x9yg86",
+      "title": "[Bi-Weekly Megathread] Project Showcase",
+      "author": "synthetic-user-2",
+      "published": "2026-10-19T14:30:51+00:00",
+      "summary": "<!-- SC_OFF --><div class=\"md\"><p><strong>Do you have something you'd like to share with the</strong> <a href=\"/r/LocalLLaMA\">r/LocalLLaMA</a> <strong>community. This is the place for it!</strong></p> <p>Recommendation on presentation:</p> ",
+      "link": "https://www.reddit.com/r/LocalLLaMA/comments/1x9yg86/biweekly_megathread_project_showcase/",
+      "content": [
+        {
+          "type": "text/html",
+          "language": null,
+          "base": "",
+          "value": "<!-- SC_OFF --><div class=\"md\"><p><strong>Do you have something you'd like to share with the</strong> <a href=\"/r/LocalLLaMA\">r/LocalLLaMA</a> <strong>community. This is the place for it!</strong></p> <p>Recommendation on presentation:</p> "
+        }
+      ],
+      "tags": [
+        {
+          "term": "LocalLLaMA",
+          "scheme": null,
+          "label": "r/LocalLLaMA"
+        }
+      ]
+    }
+  ]
+}

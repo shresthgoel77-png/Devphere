@@ -1,0 +1,35 @@
+[
+  {
+    "paper": {
+      "id": "2601.01234",
+      "authors": [
+        {
+          "name": "Example Researcher"
+        },
+        {
+          "name": "Second Researcher"
+        }
+      ],
+      "title": "Synthetic Research on RAG",
+      "abstract": "<p>A sample <strong>retrieval-augmented generation</strong> paper.</p>",
+      "upvotes": 0,
+      "numComments": 3,
+      "publishedAt": "2026-01-02T03:04:05Z",
+      "githubRepo": "https://github.com/example/research"
+    },
+    "publishedAt": "2026-01-02T03:04:05Z"
+  },
+  {
+    "paper": {
+      "id": "2601.01235",
+      "authors": [],
+      "title": "Synthetic Paper Without Author Data",
+      "abstract": null,
+      "upvotes": null,
+      "numComments": null,
+      "publishedAt": null,
+      "githubRepo": null
+    },
+    "publishedAt": "2026-01-01T03:04:05Z"
+  }
+]
