@@ -1,0 +1,94 @@
+{
+  "data": [
+    {
+      "id": "recursive/flint-v1.0:free",
+      "name": "Recursive: Flint (free)",
+      "created": 1792622765,
+      "context_length": 262144,
+      "architecture": {
+        "modality": "text->text",
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "tokenizer": "Other",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0",
+        "completion": "0"
+      },
+      "top_provider": {
+        "context_length": 262144,
+        "max_completion_tokens": 235929,
+        "is_moderated": false
+      },
+      "hugging_face_id": "RecursiveSI/flint",
+      "supported_parameters": [
+        "include_reasoning", "logprobs", "max_tokens", "reasoning",
+        "response_format", "seed", "stop", "temperature", "tools",
+        "top_logprobs", "top_p"
+      ]
+    },
+    {
+      "id": "meta/muse-spark-open",
+      "name": "Meta: Muse Spark Open",
+      "created": 1792087069,
+      "context_length": 1048576,
+      "architecture": {
+        "modality": "text+image+file+audio+video->text",
+        "input_modalities": ["text", "image", "video", "file", "audio"],
+        "output_modalities": ["text"],
+        "tokenizer": "Other",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0.00000125",
+        "completion": "0.00000425",
+        "input_cache_read": "0.00000015"
+      },
+      "top_provider": {
+        "context_length": 1048576,
+        "max_completion_tokens": 131072,
+        "is_moderated": false
+      },
+      "hugging_face_id": "meta-models/Muse-Spark-Open-816B-A42B",
+      "supported_parameters": [
+        "frequency_penalty", "include_reasoning", "logit_bias", "logprobs",
+        "max_tokens", "min_p", "presence_penalty", "reasoning",
+        "reasoning_effort", "repetition_penalty", "response_format", "seed",
+        "stop", "structured_outputs", "temperature", "tool_choice", "tools",
+        "top_k", "top_logprobs", "top_p"
+      ]
+    },
+    {
+      "id": "typesafe/jev-router",
+      "name": "TypeSafe: Jev Router",
+      "created": 1790363560,
+      "context_length": 1000000,
+      "architecture": {
+        "modality": "text+image+file+audio+video->text",
+        "input_modalities": ["audio", "file", "image", "text", "video"],
+        "output_modalities": ["text"],
+        "tokenizer": "Router",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "-1",
+        "completion": "-1"
+      },
+      "top_provider": {
+        "context_length": null,
+        "max_completion_tokens": 65536,
+        "is_moderated": false
+      },
+      "hugging_face_id": null,
+      "supported_parameters": [
+        "frequency_penalty", "include_reasoning", "logit_bias", "logprobs",
+        "max_completion_tokens", "max_tokens", "min_p",
+        "parallel_tool_calls", "presence_penalty", "reasoning",
+        "reasoning_effort", "repetition_penalty", "response_format", "seed",
+        "stop", "structured_outputs", "temperature", "tool_choice", "tools",
+        "top_a", "top_k", "top_logprobs", "top_p", "verbosity"
+      ]
+    }
+  ]
+}
