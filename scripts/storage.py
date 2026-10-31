@@ -181,6 +181,8 @@ def publish_metadata(metadata: object, path: str | Path) -> PublishOutcome:
                    "lastUpdatedIso": candidate["lastUpdatedIso"], "lastAttemptIso": candidate["lastAttemptIso"],
                    "counts": {name: candidate["counts"][name] for name in DATASET_NAMES},
                    "sources": {name: {f: entry[f] for f in fields} for name, entry in candidate["sources"].items()}}
+        if candidate.get("benchmarks") is not None:
+            cleaned["benchmarks"] = candidate["benchmarks"]
         content = _serialize(cleaned)
         outcome.bytes = len(content.encode("utf-8"))
         if outcome.bytes > _MAX_METADATA_BYTES:
