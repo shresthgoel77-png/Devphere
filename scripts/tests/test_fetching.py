@@ -66,6 +66,49 @@ async def test_client_errors_are_not_retried(status, kind):
 
 
 @pytest.mark.asyncio
+async def test_sensitive_request_and_response_headers_never_enter_logs(caplog):
+    secrets = (
+        "COOKIE_VALUE_SENTINEL",
+        "AUTHORIZATION_VALUE_SENTINEL",
+        "API_KEY_VALUE_SENTINEL",
+        "TOKEN_VALUE_SENTINEL",
+    )
+    caplog.set_level("DEBUG")
+    config = FetchConfig(max_attempts=1)
+    with respx.mock() as router:
+        router.get(BASE).mock(return_value=httpx.Response(
+            403,
+            headers={
+                "Set-Cookie": f"session={secrets[0]}",
+                "Authorization": secrets[1],
+                "X-Api-Key": secrets[2],
+                "X-Access-Token": secrets[3],
+            },
+        ))
+        async with new_client(config) as client:
+            with pytest.raises(FetchError) as raised:
+                await request(
+                    client,
+                    "GET",
+                    BASE,
+                    config=config,
+                    headers={
+                        "Authorization": f"Bearer {secrets[1]}",
+                        "X-Api-Key": secrets[2],
+                    },
+                )
+
+    captured = caplog.text
+    assert "example.test" in captured
+    assert "403" in captured
+    assert "blocked" in captured
+    assert raised.value.kind == "blocked"
+    for secret in secrets:
+        assert secret not in captured
+        assert secret not in str(raised.value)
+
+
+@pytest.mark.asyncio
 async def test_small_retry_after_is_honored():
     sleeps = []
     config = FetchConfig()

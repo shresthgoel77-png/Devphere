@@ -235,10 +235,17 @@ def _compact_rejections(report: object, total_records: int, accepted_records: in
     return max(0, total_records - accepted_records), reasons, examples
 
 
-def _load_previous(data_dir: Path) -> tuple[dict[str, dict | None], dict | None]:
-    datasets = {name: storage.load_published(data_dir / f"{name}.json")[0] for name in DATASET_NAMES}
+def _load_previous(
+    data_dir: Path,
+) -> tuple[dict[str, dict | None], dict[str, str], dict | None]:
+    loaded = {
+        name: storage.load_published(data_dir / f"{name}.json")
+        for name in DATASET_NAMES
+    }
+    datasets = {name: result[0] for name, result in loaded.items()}
+    statuses = {name: result[1] for name, result in loaded.items()}
     metadata, _ = storage.load_published(data_dir / "metadata.json")
-    return datasets, metadata
+    return datasets, statuses, metadata
 
 
 def _previous_non_seed(dataset: str, envelope: dict | None) -> list[dict]:
@@ -269,10 +276,17 @@ def _prune_models(items: list[dict]) -> tuple[list[dict], dict[str, int]]:
     return ordered[:MODELS_MAX_ITEMS], {"older_than_retention": 0, "over_limit": cap_pruned}
 
 
-def _actual_counts(data_dir: Path) -> tuple[dict[str, int], dict[str, dict | None]]:
-    datasets = {name: storage.load_published(data_dir / f"{name}.json")[0] for name in DATASET_NAMES}
+def _actual_counts(
+    data_dir: Path,
+) -> tuple[dict[str, int], dict[str, dict | None], dict[str, str]]:
+    loaded = {
+        name: storage.load_published(data_dir / f"{name}.json")
+        for name in DATASET_NAMES
+    }
+    datasets = {name: result[0] for name, result in loaded.items()}
+    statuses = {name: result[1] for name, result in loaded.items()}
     counts = {name: len(data["items"]) if data is not None else 0 for name, data in datasets.items()}
-    return counts, datasets
+    return counts, datasets, statuses
 
 
 def _new_metadata(
@@ -394,7 +408,7 @@ async def run_ingestion(
         except OSError as error:
             raise UsageError("Unable to create --data-dir.") from error
 
-    previous_datasets, previous_metadata = _load_previous(target_dir)
+    previous_datasets, previous_dataset_statuses, previous_metadata = _load_previous(target_dir)
     async with new_client(fetch_config) as client:
         results = await asyncio.gather(*(
             _fetch_one(source_id, registry[source_id], client, fetch_config, run_at)
@@ -486,28 +500,48 @@ async def run_ingestion(
 
     for dataset in ("news", "models"):
         dataset_sources = selected_by_dataset[dataset]
+        existing_status = previous_dataset_statuses[dataset]
+        existing_corrupt = existing_status == "invalid"
         new_records = [
             record
             for source_id in dataset_sources
             for record in accepted_by_source.get(source_id, [])
         ]
         if not dataset_sources:
-            dataset_outcomes[dataset] = {"status": "skipped", "reason": "No sources selected."}
-            LOGGER.info("Dataset %s: skipped (no sources selected)", dataset)
+            outcome = "refused" if existing_corrupt else "skipped"
+            reason = (
+                f"Existing {dataset}.json is invalid; no sources were selected for recovery."
+                if existing_corrupt else "No sources selected."
+            )
+            dataset_outcomes[dataset] = {"status": outcome, "reason": reason}
+            LOGGER.info("Dataset %s: %s (%s)", dataset, outcome, reason)
             continue
         if dataset == "models" and not accepted_by_source.get("openrouter"):
+            outcome = "refused" if existing_corrupt else "skipped"
+            reason = (
+                "Existing models.json is invalid; no validated OpenRouter records "
+                "were available for recovery."
+                if existing_corrupt
+                else "OpenRouter produced no accepted model records."
+            )
             dataset_outcomes[dataset] = {
-                "status": "skipped",
-                "reason": "OpenRouter produced no accepted model records.",
+                "status": outcome,
+                "reason": reason,
             }
-            LOGGER.info("Dataset models: skipped (no accepted OpenRouter models)")
+            LOGGER.info("Dataset models: %s (%s)", outcome, reason)
             continue
         if not new_records:
+            outcome = "refused" if existing_corrupt else "skipped"
+            reason = (
+                f"Existing {dataset}.json is invalid; no validated incoming records "
+                "were available for recovery."
+                if existing_corrupt else "No source produced accepted records."
+            )
             dataset_outcomes[dataset] = {
-                "status": "skipped",
-                "reason": "No source produced accepted records.",
+                "status": outcome,
+                "reason": reason,
             }
-            LOGGER.info("Dataset %s: skipped (no accepted records)", dataset)
+            LOGGER.info("Dataset %s: %s (%s)", dataset, outcome, reason)
             continue
 
         previous_envelope = previous_datasets[dataset]
@@ -571,6 +605,8 @@ async def run_ingestion(
             else:
                 outcome = "refused"
                 reason = published.reason
+        if existing_corrupt and outcome in ("published", "unchanged"):
+            reason = f"Recovered previously invalid {dataset}.json. {reason}"
         dataset_outcomes[dataset] = {
             "status": outcome,
             "reason": reason,
@@ -587,13 +623,31 @@ async def run_ingestion(
         )
 
     for dataset in ("builds", "hackathons"):
+        existing_corrupt = previous_dataset_statuses[dataset] == "invalid"
         dataset_outcomes[dataset] = {
-            "status": "skipped",
-            "reason": "Not registered in Phase 2; existing file left untouched.",
+            "status": "refused" if existing_corrupt else "skipped",
+            "reason": (
+                f"Existing {dataset}.json is invalid; Phase 2 does not ingest this "
+                "dataset, so it was left untouched."
+                if existing_corrupt
+                else "Not registered in Phase 2; existing file left untouched."
+            ),
         }
-        LOGGER.info("Dataset %s: skipped (not registered in Phase 2)", dataset)
+        LOGGER.info(
+            "Dataset %s: %s (not registered in Phase 2)",
+            dataset,
+            dataset_outcomes[dataset]["status"],
+        )
 
-    counts, on_disk = _actual_counts(target_dir)
+    counts, on_disk, on_disk_statuses = _actual_counts(target_dir)
+    corrupted_datasets = [
+        {
+            "dataset": name,
+            "status": "recovered" if on_disk_statuses[name] == "ok" else "unrecovered",
+        }
+        for name in DATASET_NAMES
+        if previous_dataset_statuses[name] == "invalid"
+    ]
     metadata = _new_metadata(
         previous_metadata,
         source_summaries,
@@ -604,7 +658,21 @@ async def run_ingestion(
         provenance=metadata_provenance,
     )
     metadata_valid, metadata_reason = validate_metadata(metadata)
-    if not metadata_valid:
+    unrecovered_corruption = [
+        item["dataset"] for item in corrupted_datasets
+        if item["status"] == "unrecovered"
+    ]
+    if unrecovered_corruption:
+        metadata_outcome = {
+            "status": "refused",
+            "reason": (
+                "Metadata was not published because these datasets remain corrupt: "
+                + ", ".join(unrecovered_corruption)
+                + "."
+            ),
+        }
+        metadata_refused = True
+    elif not metadata_valid:
         metadata_outcome = {
             "status": "refused",
             "reason": metadata_reason or "Metadata validation failed.",
@@ -635,6 +703,7 @@ async def run_ingestion(
         "sources": per_source,
         "datasets": dataset_outcomes,
         "metadata": metadata_outcome,
+        "corrupted_datasets": corrupted_datasets,
         "pruned": pruned_counts,
         "data_changed": data_changed,
         "counts": counts,

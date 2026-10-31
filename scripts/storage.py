@@ -144,9 +144,13 @@ def publish_dataset(dataset: str, items: object, data_origin: str, generated_at_
             return outcome
         target = Path(path)
         previous, status = _load_dataset(target, dataset)
-        if not items and allow_empty is not True and status == "ok" and previous["items"]:
-            outcome.reason = "Empty candidate cannot replace valid non-empty data without allow_empty=True."
-            return outcome
+        if not items and allow_empty is not True:
+            if status == "invalid":
+                outcome.reason = "Empty candidate cannot replace an invalid existing dataset."
+                return outcome
+            if status == "ok" and previous["items"]:
+                outcome.reason = "Empty candidate cannot replace valid non-empty data without allow_empty=True."
+                return outcome
         return _atomic_publish(dataset, target, content, len(cleaned), lambda obj: _valid_dataset(dataset, obj))
     except (OSError, ValueError, TypeError, RecursionError) as error:
         outcome.reason = "Publication refused: " + sanitize_error(error)

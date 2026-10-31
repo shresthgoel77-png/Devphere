@@ -126,6 +126,26 @@ def test_corrupt_existing_reported_invalid_and_replaced(seeds, tmp_path, kind):
     assert storage.load_published(path)[1] == "ok"
 
 
+def test_empty_candidate_cannot_replace_corrupt_existing_dataset(seeds, tmp_path):
+    path = tmp_path / "news.json"
+    path.write_text("{", encoding="utf-8")
+    before = path.read_bytes()
+
+    result = storage.publish_dataset(
+        "news",
+        [],
+        "ingested",
+        "2026-10-30T12:00:00Z",
+        path,
+        max_items=100,
+        max_bytes=1_000_000,
+    )
+
+    assert not result.published
+    assert "invalid existing dataset" in result.reason
+    assert path.read_bytes() == before
+
+
 def test_load_invalid_json_contract_and_garbage_paths(tmp_path):
     path = tmp_path / "news.json"
     for text in ("null", "[]", '"garbage"', '{"schemaVersion":NaN}', '{"schemaVersion":1}'):

@@ -95,6 +95,8 @@ class FetchError(Exception):
 
 def new_client(config: FetchConfig) -> httpx.AsyncClient:
     """Create a pooled async client; callers own it with ``async with``."""
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
     timeout = httpx.Timeout(
         connect=config.connect_timeout,
         read=config.read_timeout,
@@ -153,6 +155,26 @@ def _raise_http_error(response: httpx.Response, retry_after: float | None = None
         raise FetchError("client_error", status_code=status)
 
 
+def _log_response(url: str, response: httpx.Response) -> None:
+    source = urlsplit(url).hostname or "unknown"
+    status = response.status_code
+    category = (
+        "blocked" if status == 403
+        else "rate_limited" if status == 429
+        else "server_error" if 500 <= status <= 599
+        else "client_error" if 400 <= status <= 499
+        else None
+    )
+    if category is None:
+        logging.getLogger("devnexus.fetching").info(
+            "Source %s returned HTTP %d", source, status,
+        )
+    else:
+        logging.getLogger("devnexus.fetching").warning(
+            "Source %s returned HTTP %d (%s)", source, status, category,
+        )
+
+
 async def request(
     client: httpx.AsyncClient,
     method: str,
@@ -188,6 +210,7 @@ async def request(
                     json=json,
                     headers=headers,
                 ) as response:
+                    _log_response(url, response)
                     retry_after = (
                         _retry_after_seconds(response.headers.get("Retry-After"), time.time())
                         if response.status_code == 429 else None

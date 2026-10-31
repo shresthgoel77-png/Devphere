@@ -321,6 +321,76 @@ async def test_every_invalid_record_is_reported_and_does_not_publish(tmp_path):
     assert summary["datasets"]["news"]["status"] == "skipped"
 
 
+@pytest.mark.parametrize("corrupt_json", ["{", '{"schemaVersion":NaN}'])
+@pytest.mark.asyncio
+async def test_corrupt_dataset_without_valid_recovery_is_preserved_and_reported(
+    tmp_path, corrupt_json,
+):
+    data_dir = seed_directory(tmp_path / "data")
+    models_path = data_dir / "models.json"
+    models_path.write_text(corrupt_json, encoding="utf-8")
+    corrupt_bytes = models_path.read_bytes()
+    metadata_path = data_dir / "metadata.json"
+    metadata_before = metadata_path.read_bytes()
+    registry = {
+        "openrouter": result_fetcher(
+            source_result("openrouter", status="failed"),
+        )
+    }
+
+    code, summary = await ingest_all.run_ingestion(
+        data_dir,
+        sources=["openrouter"],
+        source_registry=registry,
+        config=FAST_CONFIG,
+        now=NOW,
+    )
+
+    assert code == 1
+    assert models_path.read_bytes() == corrupt_bytes
+    assert metadata_path.read_bytes() == metadata_before
+    assert summary["datasets"]["models"]["status"] == "refused"
+    assert "models.json is invalid" in summary["datasets"]["models"]["reason"]
+    assert summary["corrupted_datasets"] == [
+        {"dataset": "models", "status": "unrecovered"}
+    ]
+    assert summary["metadata"]["status"] == "refused"
+    assert "models" in summary["metadata"]["reason"]
+
+
+@pytest.mark.asyncio
+async def test_corrupt_dataset_is_recovered_from_validated_incoming_records(tmp_path):
+    data_dir = seed_directory(tmp_path / "data")
+    models_path = data_dir / "models.json"
+    models_path.write_bytes(b"")
+    registry = {
+        "openrouter": result_fetcher(source_result(
+            "openrouter", [model_record("provider/recovered")],
+        ))
+    }
+
+    code, summary = await ingest_all.run_ingestion(
+        data_dir,
+        sources=["openrouter"],
+        source_registry=registry,
+        config=FAST_CONFIG,
+        now=NOW,
+    )
+
+    assert code == 0
+    recovered, status = storage.load_published(models_path)
+    assert status == "ok"
+    assert recovered["items"] == [model_record("provider/recovered")]
+    assert summary["datasets"]["models"]["status"] == "published"
+    assert "Recovered previously invalid models.json" in summary["datasets"]["models"]["reason"]
+    assert summary["corrupted_datasets"] == [
+        {"dataset": "models", "status": "recovered"}
+    ]
+    metadata = json.loads((data_dir / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["counts"]["models"] == 1
+    assert validate_metadata(metadata) == (True, None)
+
+
 @pytest.mark.asyncio
 async def test_expired_candidate_cannot_empty_replace_valid_news(tmp_path):
     data_dir = seed_directory(tmp_path / "data")
